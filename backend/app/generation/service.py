@@ -83,7 +83,6 @@ class GenerationService:
         }
         completion = await client.chat.completions.create(
             model=self.settings.openai_model,
-            temperature=0.45,
             messages=[
                 {
                     "role": "system",
