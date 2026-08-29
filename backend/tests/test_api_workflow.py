@@ -121,3 +121,61 @@ def test_complete_scan_generate_approve_reload_workflow(tmp_path) -> None:
         assert library.status_code == 200
         assert len(library.json()) == 1
         assert library.json()[0]["id"] == content_id
+
+
+def test_production_write_endpoints_require_api_token(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'security.db'}"
+
+    settings = Settings(
+        app_env="production",
+        database_url=database_url,
+        openai_api_key=None,
+        alpha_api_token="security-test-token",
+        cors_origins=["https://creator.example"],
+    )
+
+    app = create_app(settings)
+
+    app.state.collector_factory = lambda: [
+        StaticCollector(
+            "official-security",
+            "OpenAI launches a secure workflow agent",
+            "https://official-security.example.com/agent",
+        )
+    ]
+
+    with TestClient(app) as client:
+        assert client.post("/api/v1/radar/scan").status_code == 401
+
+        scan = client.post(
+            "/api/v1/radar/scan",
+            headers={"Authorization": "Bearer security-test-token"},
+        )
+        assert scan.status_code == 200, scan.text
+
+        story_id = scan.json()["stories"][0]["id"]
+
+        assert client.post(
+            f"/api/v1/stories/{story_id}/generate"
+        ).status_code == 401
+
+        generated = client.post(
+            f"/api/v1/stories/{story_id}/generate",
+            headers={"Authorization": "Bearer security-test-token"},
+        )
+        assert generated.status_code == 200, generated.text
+
+        content_id = generated.json()["id"]
+
+        unauthorized = client.post(
+            f"/api/v1/content/{content_id}/decision",
+            json={"decision": "approved", "reason": "Security test"},
+        )
+        assert unauthorized.status_code == 401
+
+        approved = client.post(
+            f"/api/v1/content/{content_id}/decision",
+            headers={"Authorization": "Bearer security-test-token"},
+            json={"decision": "approved", "reason": "Security test"},
+        )
+        assert approved.status_code == 200, approved.text

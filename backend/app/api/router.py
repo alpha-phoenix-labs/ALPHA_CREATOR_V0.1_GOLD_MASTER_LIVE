@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+import secrets
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
@@ -28,8 +29,50 @@ def get_session(request: Request):
 DatabaseSession = Annotated[Session, Depends(get_session)]
 
 
+def require_write_access(
+    request: Request,
+    authorization: Annotated[str | None, Header()] = None,
+) -> None:
+    settings = request.app.state.settings
+
+    if not settings.is_production:
+        return
+
+    configured_token = settings.alpha_api_token
+    if configured_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Production write access is not configured",
+        )
+
+    expected = configured_token.get_secret_value()
+
+    if authorization is None or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    supplied = authorization[len("Bearer "):]
+
+    if not secrets.compare_digest(supplied, expected):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+WriteAccess = Annotated[None, Depends(require_write_access)]
+
+
 @api_router.post("/radar/scan", response_model=ScanResponse)
-async def scan_radar(request: Request, session: DatabaseSession) -> ScanResponse:
+async def scan_radar(
+    request: Request,
+    session: DatabaseSession,
+    _write_access: WriteAccess,
+) -> ScanResponse:
     settings = request.app.state.settings
     service = RadarService(
         collectors=request.app.state.collector_factory(),
@@ -65,7 +108,10 @@ def get_story(story_id: str, session: DatabaseSession) -> StoryRead:
 
 @api_router.post("/stories/{story_id}/generate", response_model=ContentItemRead)
 async def generate_content(
-    story_id: str, request: Request, session: DatabaseSession
+    story_id: str,
+    request: Request,
+    session: DatabaseSession,
+    _write_access: WriteAccess,
 ) -> ContentItemRead:
     service = ContentService(request.app.state.generation_factory())
     content = await service.generate(session, story_id)
@@ -108,7 +154,10 @@ def get_content(content_id: str, session: DatabaseSession) -> ContentItemRead:
 
 @api_router.post("/content/{content_id}/decision", response_model=ContentItemRead)
 def decide_content(
-    content_id: str, decision_input: DecisionInput, session: DatabaseSession
+    content_id: str,
+    decision_input: DecisionInput,
+    session: DatabaseSession,
+    _write_access: WriteAccess,
 ) -> ContentItemRead:
     item = ContentService.decide(session, content_id, decision_input)
     if item is None:

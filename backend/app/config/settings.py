@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     database_url: str = "sqlite:///./backend/data/alpha_creator.db"
     openai_api_key: SecretStr | None = None
+    alpha_api_token: SecretStr | None = None
     openai_model: str = "gpt-5-mini"
     collector_timeout_seconds: float = Field(default=10.0, ge=2.0, le=30.0)
     collector_max_items_per_source: int = Field(default=35, ge=5, le=100)
@@ -44,9 +45,9 @@ class Settings(BaseSettings):
             return value.replace("postgresql://", "postgresql+psycopg://", 1)
         return value
 
-    @field_validator("openai_api_key", mode="before")
+    @field_validator("openai_api_key", "alpha_api_token", mode="before")
     @classmethod
-    def empty_api_key_is_unset(cls, value: object) -> object:
+    def empty_secret_is_unset(cls, value: object) -> object:
         if isinstance(value, str) and not value.strip():
             return None
         return value

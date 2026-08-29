@@ -23,6 +23,9 @@ test("premium dashboard wires the complete V0.1 workflow through service and ada
   assert.match(adapter, /\/content\/\$\{encodeURIComponent\(contentId\)\}\/decision/);
   assert.match(adapter, /Instagram analytics unavailable/);
   assert.match(proxy, /ALPHA_BACKEND_URL/);
+  assert.match(proxy, /ALPHA_API_TOKEN/);
+  assert.match(proxy, /authorization/);
+  assert.match(proxy, /Bearer/);
   assert.match(proxy, /\/api\/v1\//);
 });
 

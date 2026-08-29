@@ -26,6 +26,14 @@ async function proxy(request: Request, context: RouteContext) {
     target.search = sourceUrl.search;
 
     const headers = new Headers({ Accept: "application/json" });
+
+    if (request.method === "POST") {
+      const apiToken = process.env.ALPHA_API_TOKEN;
+      if (apiToken) {
+        headers.set("authorization", `Bearer ${apiToken}`);
+      }
+    }
+
     const contentType = request.headers.get("content-type");
     if (contentType) headers.set("content-type", contentType);
     const requestId = request.headers.get("x-request-id");
