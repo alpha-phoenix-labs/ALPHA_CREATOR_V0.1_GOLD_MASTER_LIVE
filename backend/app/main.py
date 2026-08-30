@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import logging
 import uuid
+from collections import deque
 from contextlib import asynccontextmanager
+from threading import Lock
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +49,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.session_factory = session_factory
     application.state.collector_factory = lambda: build_collectors(settings)
     application.state.generation_factory = lambda: GenerationService(settings)
+    application.state.generate_request_times = deque()
+    application.state.generate_rate_lock = Lock()
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

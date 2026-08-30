@@ -179,3 +179,47 @@ def test_production_write_endpoints_require_api_token(tmp_path) -> None:
             json={"decision": "approved", "reason": "Security test"},
         )
         assert approved.status_code == 200, approved.text
+
+
+def test_production_generate_rate_limit(tmp_path) -> None:
+    database_url = f"sqlite:///{tmp_path / 'rate-limit.db'}"
+
+    settings = Settings(
+        app_env="production",
+        database_url=database_url,
+        openai_api_key=None,
+        alpha_api_token="security-test-token",
+        generate_rate_limit_per_minute=1,
+        cors_origins=["https://creator.example"],
+    )
+
+    app = create_app(settings)
+
+    app.state.collector_factory = lambda: [
+        StaticCollector(
+            "official-rate-limit",
+            "OpenAI launches a rate limited workflow agent",
+            "https://official-rate-limit.example.com/agent",
+        )
+    ]
+
+    headers = {"Authorization": "Bearer security-test-token"}
+
+    with TestClient(app) as client:
+        scan = client.post("/api/v1/radar/scan", headers=headers)
+        assert scan.status_code == 200, scan.text
+        story_id = scan.json()["stories"][0]["id"]
+
+        first = client.post(
+            f"/api/v1/stories/{story_id}/generate",
+            headers=headers,
+        )
+        assert first.status_code == 200, first.text
+
+        second = client.post(
+            f"/api/v1/stories/{story_id}/generate",
+            headers=headers,
+        )
+        assert second.status_code == 429
+        assert second.json()["detail"] == "Generation rate limit exceeded"
+        assert int(second.headers["Retry-After"]) >= 1

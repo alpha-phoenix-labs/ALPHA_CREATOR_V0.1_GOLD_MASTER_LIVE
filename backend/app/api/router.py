@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import secrets
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
@@ -67,6 +68,38 @@ def require_write_access(
 WriteAccess = Annotated[None, Depends(require_write_access)]
 
 
+def require_generate_rate_limit(
+    request: Request,
+    _write_access: WriteAccess,
+) -> None:
+    settings = request.app.state.settings
+
+    if not settings.is_production:
+        return
+
+    now = time.monotonic()
+    cutoff = now - 60.0
+
+    with request.app.state.generate_rate_lock:
+        request_times = request.app.state.generate_request_times
+
+        while request_times and request_times[0] <= cutoff:
+            request_times.popleft()
+
+        if len(request_times) >= settings.generate_rate_limit_per_minute:
+            retry_after = max(1, int(60.0 - (now - request_times[0])) + 1)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Generation rate limit exceeded",
+                headers={"Retry-After": str(retry_after)},
+            )
+
+        request_times.append(now)
+
+
+GenerateAccess = Annotated[None, Depends(require_generate_rate_limit)]
+
+
 @api_router.post("/radar/scan", response_model=ScanResponse)
 async def scan_radar(
     request: Request,
@@ -111,7 +144,7 @@ async def generate_content(
     story_id: str,
     request: Request,
     session: DatabaseSession,
-    _write_access: WriteAccess,
+    _generate_access: GenerateAccess,
 ) -> ContentItemRead:
     service = ContentService(request.app.state.generation_factory())
     content = await service.generate(session, story_id)

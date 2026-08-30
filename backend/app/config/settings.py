@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     collector_max_items_per_source: int = Field(default=35, ge=5, le=100)
     collector_retries: int = Field(default=1, ge=0, le=2)
     dedupe_threshold: int = Field(default=88, ge=70, le=100)
+    generate_rate_limit_per_minute: int = Field(default=10, ge=1, le=60)
     cors_origins: Annotated[list[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:4173",
