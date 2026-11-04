@@ -1,27 +1,28 @@
-# ALPHA CREATOR V0.1 — Integrated Checkpoint
+# ALPHA CREATOR V0.1 — Integrated Gold Master
 
-**KI Content Intelligence & Growth Engine**  
-**Finaler lokaler Integrationsstand: 29.08.2026**
+**AI Content Intelligence & Growth Engine**  
+**Verified local integration baseline: 29 August 2026**
 
-ALPHA CREATOR V0.1 ist ein lokal vollständig funktionsfähiger modularer Monolith. Dieser Stand verbindet den unveränderten, getesteten FastAPI-Core des Core-Checkpoints mit der Premium-UI des Frontend-Checkpoints über eine explizite Service-/Adapter-Grenze.
+ALPHA CREATOR V0.1 is a locally functional modular monolith. It integrates the tested FastAPI core from the Core Checkpoint with the premium React frontend through an explicit service/adapter boundary.
 
-Der reale V0.1-Produktpfad ist:
+The verified V0.1 product path is:
 
 `REAL RSS → SCAN → NORMALIZE → DEDUPLICATE → SCORE/RANK → PREMIUM FRONTEND → GENERATE → REVIEW → APPROVE/REJECT → DATABASE → CONTENT LIBRARY → RELOAD`
 
-## Integrationsstatus
+## Release status
 
-- Core-Checkpoint: technische Regression-Baseline
-- Premium-Frontend-Checkpoint: UI/UX-Zielbasis
-- Backend-Core-Dateien gegenüber der Baseline geändert: **nein**
-- Standard-Datenquelle des Frontends: **reale Core-API**
-- Mock-Daten: nur explizit aktivierbarer UI-/Testmodus
-- Lokaler Full-Stack-E2E mit fünf realen RSS-Quellen: **bestanden**
-- Clean Installation, Lint, Production Build, SSR, Tests und Production Runtime: **bestanden**
+- Core Checkpoint: technical regression baseline.
+- Premium Frontend Checkpoint: UI/UX baseline.
+- Backend core files changed relative to the baseline: **no**.
+- Frontend's default data source: **real Core API**.
+- Mock data: available only through an explicitly selected UI/test mode.
+- Full-stack end-to-end run using five real RSS sources: **PASS**.
+- Clean installation, lint, production build, SSR, automated tests and production runtime: **PASS**.
+- Reference commit recorded for the Gold Master: `d3c55fced10457fdb08766d99901be927a813c5f`.
 
-Die vollständige Contract-Matrix und alle bekannten Strukturunterschiede stehen in `INTEGRATION_CONTRACT_MATRIX.md`.
+The integration contract and known structural differences are documented in `INTEGRATION_CONTRACT_MATRIX.md`.
 
-## Architektur
+## Architecture
 
 ```text
 Premium React UI
@@ -29,54 +30,54 @@ Premium React UI
 DashboardService
     ↓ DashboardAdapter
 DashboardApiAdapter
-    ↓ /api/v1 serverseitiger Frontend-Proxy
+    ↓ /api/v1 server-side frontend proxy
 FastAPI Core
-    ├── RSS Collectors
-    ├── Normalisierung und Deduplizierung
-    ├── deterministisches Scoring
-    ├── strukturierte Generation
-    ├── Review-/Approval-Workflow
+    ├── RSS collectors
+    ├── normalization and deduplication
+    ├── deterministic scoring
+    ├── structured content generation
+    ├── review and approval workflow
     └── SQLAlchemy / Alembic
             ↓
-      SQLite lokal / PostgreSQL produktiv
+      SQLite locally / PostgreSQL intended for production
 ```
 
-Die UI importiert keine Backend-Modelle und keine Mock-Fixtures. Sie ruft weder Instagram noch OpenAI direkt auf. `DashboardApiAdapter` übersetzt vorhandene Core-Antworten in reine Frontend-Presentation-Contracts. Unterschiede zwischen Core- und UI-Strukturen werden nicht durch einen Umbau des Core kaschiert.
+The UI does not import backend models or mock fixtures. It does not call Instagram or OpenAI directly. `DashboardApiAdapter` maps Core responses into frontend-only presentation contracts. Differences between Core and UI data structures are handled at the adapter boundary rather than by modifying the Core.
 
-## Repository-Struktur
+## Repository structure
 
 ```text
-adapters/                         Adapter-Interface, API- und Mock-Adapter
-app/                              Vinext/React-Routen und serverseitiger API-Proxy
-backend/app/                      unveränderter FastAPI-Core
-backend/alembic/                  Datenbankmigrationen
-backend/tests/                    Core-, Collector-, Processing- und API-Tests
-components/alpha/                 ALPHA Design-System-Komponenten
-components/dashboard/             Premium-Dashboard und UI-Zustände
-data/                             ausschließlich Mock-Fixture für expliziten Testmodus
-scripts/                          Installation, Start, Tests und reales Live-E2E
+adapters/                         Adapter interface, API and mock adapters
+app/                              Vinext/React routes and server-side API proxy
+backend/app/                      FastAPI Core
+backend/alembic/                  Database migrations
+backend/tests/                    Core, collector, processing and API tests
+components/alpha/                 ALPHA design-system components
+components/dashboard/             Premium dashboard and UI states
+data/                             Mock fixture for explicitly enabled test mode
+scripts/                          Installation, startup, tests and live E2E
 services/                         DashboardService
-tests/                            Frontend-, Adapter-, Komponenten- und SSR-Tests
-types/                            Frontend-Presentation-Contracts
-worker/                           Vinext/Cloudflare-Entry
-.openai/hosting.json              von vite.config.ts benötigte Hosting-Konfiguration
-build/sites-vite-plugin.ts        von vite.config.ts benötigtes Build-Plugin
+tests/                            Frontend, adapter, component and SSR tests
+types/                            Frontend presentation contracts
+worker/                           Vinext/Cloudflare entry
+.openai/hosting.json              Hosting configuration required by vite.config.ts
+build/sites-vite-plugin.ts        Build plugin required by vite.config.ts
 ```
 
-## Voraussetzungen
+## Requirements
 
 - Python 3.12+
-- Node.js mindestens 22.13.0
-- npm mit Unterstützung für `npm ci`
-- Internetzugriff für Dependency-Installation und reale RSS-Scans
-- optional PostgreSQL für Shared/Production
-- optional ein OpenAI API-Key für den strukturierten OpenAI-Provider
+- Node.js 22.13.0+
+- npm with `npm ci` support
+- Internet access for dependency installation and live RSS scans
+- PostgreSQL, optional; intended for shared/production environments
+- OpenAI API key, optional; enables the external structured-generation provider
 
-Final geprüft mit Python 3.12.13, Node.js 24.19.0 und npm 11.9.0.
+The documented final validation environment used Python 3.12.13, Node.js 24.19.0 and npm 11.9.0.
 
-## Reproduzierbare lokale Installation
+## Reproducible local installation
 
-Aus einem frischen Source-Checkpoint ohne `node_modules`, `.venv`, Cache oder Build-Ausgabe:
+From a clean source checkout:
 
 ```bash
 python3 -m venv .venv
@@ -86,52 +87,52 @@ cp .env.example .env
 .venv/bin/alembic -c backend/alembic.ini upgrade head
 ```
 
-`cp .env.example .env` ist optional. Ohne `.env` verwendet der Core die sichere lokale SQLite-Konfiguration und den faktengebundenen `local-grounded`-Generator.
+Copying `.env.example` is optional. Without a local `.env`, the Core uses its local SQLite configuration and the `local-grounded` generation provider.
 
-Für die Sites-spezifische, gelockte Installationsumgebung existiert zusätzlich:
+For the project-specific locked installation environment, the repository also provides:
 
 ```bash
 npm run install:ci
 ```
 
-Dieses Script richtet projektlokale Tool-Caches ein, prüft den integritätsgebundenen Vinext-Tarball und führt genau ein begrenztes `npm ci` aus. Für eine normale lokale Installation ist `npm ci` der direkte Pfad.
+This script prepares project-local tool caches, verifies the integrity-pinned Vinext tarball and performs one bounded `npm ci`. For a standard local setup, `npm ci` is the direct installation path.
 
-## Environment Variables
+## Environment variables
 
-| Variable | Zweck | Sicherer Default |
+| Variable | Purpose | Safe/default behavior |
 | --- | --- | --- |
-| `APP_NAME` | API-Anzeigename | `ALPHA CREATOR` |
-| `APP_ENV` | Laufzeitumgebung | `development` |
-| `APP_DEBUG` | Debugmodus | `false` |
-| `API_PREFIX` | Core-API-Präfix | `/api/v1` |
-| `DATABASE_URL` | SQLAlchemy-Verbindung | `sqlite:///./backend/data/alpha_creator.db` |
-| `OPENAI_API_KEY` | aktiviert den OpenAI-Provider | leer |
-| `OPENAI_MODEL` | Modellwahl hinter der Provider-Grenze | `gpt-5-mini` |
-| `ALPHA_BACKEND_URL` | serverseitiges Ziel des Frontend-Proxys | `http://127.0.0.1:8000` |
-| `CORS_ORIGINS` | erlaubte Origins bei direktem API-Zugriff | lokale Origins |
-| `COLLECTOR_TIMEOUT_SECONDS` | Timeout pro Quelle | `10` |
-| `COLLECTOR_MAX_ITEMS_PER_SOURCE` | Feed-Limit | `35` |
-| `COLLECTOR_RETRIES` | kontrollierte Retries | `1` |
-| `DEDUPE_THRESHOLD` | RapidFuzz-Schwellwert | `88` |
-| `NEXT_PUBLIC_ALPHA_DASHBOARD_SOURCE` | `api` oder expliziter `mock`-Modus | `api` |
+| `APP_NAME` | API display name | `ALPHA CREATOR` |
+| `APP_ENV` | Runtime environment | `development` |
+| `APP_DEBUG` | Debug mode | `false` |
+| `API_PREFIX` | Core API prefix | `/api/v1` |
+| `DATABASE_URL` | SQLAlchemy connection | local SQLite |
+| `OPENAI_API_KEY` | Enables the OpenAI provider | unset |
+| `OPENAI_MODEL` | Model behind the provider boundary | `gpt-5-mini` |
+| `ALPHA_BACKEND_URL` | Server-side frontend proxy target | `http://127.0.0.1:8000` |
+| `CORS_ORIGINS` | Allowed origins for direct API access | local origins |
+| `COLLECTOR_TIMEOUT_SECONDS` | Per-source timeout | `10` |
+| `COLLECTOR_MAX_ITEMS_PER_SOURCE` | Feed item limit | `35` |
+| `COLLECTOR_RETRIES` | Controlled retries | `1` |
+| `DEDUPE_THRESHOLD` | RapidFuzz threshold | `88` |
+| `NEXT_PUBLIC_ALPHA_DASHBOARD_SOURCE` | `api` or explicit `mock` mode | `api` |
 
-Echte Secrets gehören ausschließlich in eine lokale `.env` oder in die Secret-Verwaltung der Laufzeit. `.env` wird ignoriert und ist nicht Bestandteil des finalen Source-Checkpoints.
+Real secrets must only be stored in a local `.env` file or the runtime's secret manager. Never commit credentials. The local `.env` file is excluded from the source checkpoint.
 
-## Lokaler Start
+## Run locally
 
-Komplettes Entwicklungssystem mit einem Befehl:
+Start the complete development environment:
 
 ```bash
 npm run dev:full
 ```
 
-Danach:
+Default local endpoints:
 
-- Premium-Frontend: `http://127.0.0.1:3000/dashboard`
-- Backend-Health: `http://127.0.0.1:8000/health`
-- FastAPI-Dokumentation: `http://127.0.0.1:8000/docs`
+- Premium frontend: `http://127.0.0.1:3000/dashboard`
+- Backend health: `http://127.0.0.1:8000/health`
+- FastAPI documentation: `http://127.0.0.1:8000/docs`
 
-Alternativ in zwei Terminals:
+Alternatively, run the backend and frontend in separate terminals:
 
 ```bash
 .venv/bin/uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
@@ -141,94 +142,88 @@ Alternativ in zwei Terminals:
 ALPHA_BACKEND_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1 --port 3000
 ```
 
-## Production Build und lokaler Production-Start
+## Production build and local production runtime
 
 ```bash
 npm run build
 ALPHA_BACKEND_URL=http://127.0.0.1:8000 npm start -- --host 127.0.0.1 --port 4173
 ```
 
-Der Production Build umfasst Client-, Server-, React-Server-Component- und SSR-Phasen. Der Backend-Prozess muss separat laufen.
+The production build includes client, server, React Server Component and SSR phases. The backend process must be started separately.
 
-## Datenbank
+## Database
 
-Lokale Initialisierung:
+Initialize the local database:
 
 ```bash
 mkdir -p backend/data
 .venv/bin/alembic -c backend/alembic.ini upgrade head
 ```
 
-PostgreSQL-Beispiel für Shared/Production:
+Example PostgreSQL configuration for a shared/production environment:
 
 ```bash
 export DATABASE_URL='postgresql+psycopg://USER:PASSWORD@HOST:5432/alpha_creator'
 .venv/bin/alembic -c backend/alembic.ini upgrade head
 ```
 
-V0.1-Entitäten:
+V0.1 domain entities include Sources, Stories, Story Scores, Generations, Content Items and Approval Decisions.
 
-- Sources
-- Stories
-- Story Scores
-- Generations
-- Content Items
-- Approval Decisions
+Initial migration: `backend/alembic/versions/73a80eba9096_initial_schema.py`.
 
-Die initiale Migration liegt in `backend/alembic/versions/73a80eba9096_initial_schema.py`.
+**Validation boundary:** the documented Gold Master run verified the local SQLite path. PostgreSQL production behavior is not claimed as verified by that run.
 
 ## Core API
 
-| Methode | Endpoint | Funktion |
+| Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `GET` | `/health` | Service-, Datenbank- und Generierungsstatus |
-| `POST` | `/api/v1/radar/scan` | Quellen scannen, normalisieren, deduplizieren und ranken |
-| `GET` | `/api/v1/stories` | gerankte Storys |
-| `GET` | `/api/v1/stories/{story_id}` | Story-Details und Scores |
-| `POST` | `/api/v1/stories/{story_id}/generate` | strukturiertes Content-Paket erzeugen |
-| `GET` | `/api/v1/content` | persistente Content Library |
-| `GET` | `/api/v1/content/{content_id}` | einzelnes Content-Paket |
-| `POST` | `/api/v1/content/{content_id}/decision` | freigeben oder ablehnen |
-| `GET` | `/api/v1/dashboard/stats` | Core-Dashboard-Zähler |
+| `GET` | `/health` | Service, database and generation status |
+| `POST` | `/api/v1/radar/scan` | Scan, normalize, deduplicate and rank sources |
+| `GET` | `/api/v1/stories` | Ranked stories |
+| `GET` | `/api/v1/stories/{story_id}` | Story details and scores |
+| `POST` | `/api/v1/stories/{story_id}/generate` | Generate a structured content package |
+| `GET` | `/api/v1/content` | Persistent content library |
+| `GET` | `/api/v1/content/{content_id}` | Individual content package |
+| `POST` | `/api/v1/content/{content_id}/decision` | Approve or reject content |
+| `GET` | `/api/v1/dashboard/stats` | Core dashboard counters |
 
-Der Frontend-Proxy unter `app/api/v1/[...path]/route.ts` erlaubt nur `GET` und `POST`, validiert das Backend-Ziel und gibt keine Backend-Credentials an den Browser weiter.
+The frontend proxy at `app/api/v1/[...path]/route.ts` allows only `GET` and `POST`, validates the backend target and does not expose backend credentials to the browser.
 
-## Premium-Frontend
+## Premium frontend
 
-Integriert und mit realen Core-Daten verbunden sind:
+Integrated areas connected to real Core data include:
 
-- App Shell, Sidebar, mobile Navigation und Top Bar
-- Content Pipeline
-- KPI Cards
-- Top Opportunities aus gerankten Core-Storys
-- Recent Content aus der persistenten Content Library
-- strukturierte Live Preview
-- heuristisch gekennzeichnete Viral Prediction
-- ALPHA Insights aus dem gespeicherten Core-Paket
-- reale Next Best Action für Review/Approve/Reject
-- Presentation Time Range mit sichtbarer Core-Zeitbasis
-- Systemstatus
-- Create Flow aus einer realen gerankten Story
-- Loading-, Empty-, Partial-Data- und Error-States
-- responsive Layout-Gates
-- Reduced Motion und sichtbare Focus-States
+- App shell, sidebar, mobile navigation and top bar
+- Content pipeline and KPI cards
+- Top opportunities based on ranked Core stories
+- Recent content from the persistent Content Library
+- Structured live preview
+- Clearly labeled heuristic viral prediction
+- ALPHA insights derived from stored Core packages
+- Review/approve/reject next actions
+- Presentation time range with visible Core time basis
+- System status and creation flow from a ranked story
+- Loading, empty, partial-data and error states
+- Responsive layout gates, reduced motion and visible focus states
 
-`DashboardApiAdapter.getDashboard()` aggregiert `stats`, `stories` und `content` mit `Promise.allSettled`. Einzelne Ausfälle erzeugen einen ehrlichen Partial-Data-State; erst der Ausfall aller drei Core-Anfragen wird als vollständiger Fehler behandelt.
+`DashboardApiAdapter.getDashboard()` aggregates `stats`, `stories` and `content` with `Promise.allSettled`. A failure in an individual request produces an explicit partial-data state; only failure of all three Core requests is treated as a complete dashboard failure.
 
-## Ehrliche Datenkennzeichnung
+## Data integrity and honest UI states
 
-Der Core liefert in V0.1 keine Instagram-Analytics, kein Publishing, kein Scheduling und kein Reel-Rendering. Deshalb werden folgende Bereiche nicht erfunden:
+The V0.1 Core does not provide Instagram analytics, publishing, scheduling or video rendering. The UI therefore does not fabricate these capabilities:
 
-- Reach, Views, Saves, Shares und Follows: `unavailable`
-- Scheduled/Published Pipeline: `unavailable`
-- Retention und Prediction Confidence: `unavailable`
-- Preview: ausdrücklich `structured-preview`, kein gerendertes Video
-- Pre-Publish Score: heuristischer Content-Score, keine Viralitätswahrscheinlichkeit
-- Time Range: Presentation-Auswahl; Core-Zähler behalten ihre sichtbar angegebene 24h-/All-Time-Basis
+- Reach, views, saves, shares and follows: unavailable
+- Scheduled/published pipeline: unavailable
+- Retention and prediction confidence: unavailable
+- Preview: explicitly a structured preview, not a rendered video
+- Pre-publish score: heuristic content score, not a probability of virality
+- Time range: a presentation-level selection; Core counters retain their stated 24-hour/all-time basis
 
-Experiments, Analytics, Settings und dedizierte Unterseiten ohne Core-Vertrag zeigen einen klaren Pending-/Unavailable-Zustand und täuschen keine Live-Funktion vor.
+Experiments, Analytics, Settings and other views without a Core contract show a pending/unavailable state rather than implying live functionality.
 
-## Reale RSS-Quellen
+## RSS sources
+
+The documented live run used:
 
 - OpenAI News
 - Google AI
@@ -236,25 +231,25 @@ Experiments, Analytics, Settings und dedizierte Unterseiten ohne Core-Vertrag ze
 - TechCrunch AI
 - Ars Technica AI
 
-Collector-Fehler werden pro Quelle isoliert. Ein einzelner Feedfehler bricht den Gesamtscan nicht ab.
+Collector failures are isolated per source. A single feed failure does not abort the entire scan.
 
-## Scoring und Generation
+## Scoring and content generation
 
-Der Core berechnet elf deterministische Teilscores und einen gewichteten Gesamtscore von 0 bis 100. Die UI kennzeichnet diesen Wert als heuristischen Content-Score.
+The Core calculates eleven deterministic sub-scores and a weighted overall score from 0 to 100. The UI labels this value as a heuristic content score.
 
-Mit `OPENAI_API_KEY` verwendet `GenerationService` den strukturierten OpenAI-Provider. Ohne Schlüssel oder bei einem vorübergehenden Providerfehler bleibt der Workflow über den gekennzeichneten `local-grounded`-Provider funktionsfähig. Die UI ruft OpenAI nie direkt auf.
+When `OPENAI_API_KEY` is configured, `GenerationService` uses the structured OpenAI provider. Without a key, or during a temporary provider failure, the workflow remains available through the explicitly identified `local-grounded` provider. The frontend never calls OpenAI directly.
 
-Beide Wege erzeugen ein validiertes Content-Paket mit Hook, First Frame, Reel-Skript, Szenenplan, On-Screen-Texten, Demo/Proof, Template, Caption, CTA, fünf Hashtags, Thumbnail-Text, Content-Scores, Pre-Publish Score, Testhypothese, Erfolgssignal und Claim Check.
+Both paths produce a validated content package containing a hook, first frame, reel script, scene plan, on-screen text, demo/proof, template, caption, CTA, five hashtags, thumbnail text, content scores, pre-publish score, test hypothesis, success signal and claim check.
 
-## Tests
+## Test results
 
-Vollständige lokale Suite:
+Run the complete local suite:
 
 ```bash
 npm run test:all
 ```
 
-Einzeln:
+Run individual checks:
 
 ```bash
 .venv/bin/pytest
@@ -262,57 +257,95 @@ npm run lint
 npm test
 ```
 
-Realer Full-Stack-Test:
+Run the live full-stack test:
 
 ```bash
 npm run test:e2e:live
 ```
 
-Finale Ergebnisse vom 29.08.2026:
+### 1. Passed tests — documented Gold Master run
 
-| Gate | Ergebnis |
+The recorded final validation dated 29 August 2026 reports:
+
+| Gate | Result | Evidence recorded |
+| --- | --- | --- |
+| Clean `npm ci` | **PASS** | 677 packages installed |
+| Clean Python installation | **PASS** | Requirements installed |
+| Backend pytest | **PASS** | 6/6 tests |
+| ESLint | **PASS** | 0 lint errors |
+| Frontend, components, adapters and SSR | **PASS** | 15/15 tests |
+| Production build | **PASS** | All five documented Vinext build phases |
+| Production runtime | **PASS** | Dashboard, `/health` and proxy stats responded |
+| Real full-stack E2E | **PASS** | `LIVE_PREMIUM_E2E_OK` |
+
+The final clean E2E run used five live RSS sources, processed 129 raw feed items into 128 story clusters, generated a content package from a ranked story, persisted an approval decision and verified the `approved` state after reloading through a new service/adapter instance.
+
+**Recorded automated test total: 21 passed, 0 failed** (6 backend + 15 frontend/adapter/component/SSR tests).
+
+### 2. Failed tests — explicit failure record
+
+**No failing automated tests were recorded in the documented Gold Master validation.**
+
+| Failure category | Recorded result |
 | --- | --- |
-| Clean `npm ci` | PASS — 677 Pakete installiert |
-| Clean Python-Installation | PASS — `requirements.txt` vollständig installiert |
-| Backend/pytest | PASS — 6/6 |
-| ESLint | PASS — 0 Fehler |
-| Frontend, Komponenten, Adapter und SSR | PASS — 15/15 |
-| Production Build | PASS — alle fünf Vinext-Buildphasen |
-| Production Runtime | PASS — Dashboard, `/health` und Proxy-Stats erreichbar |
-| Real Full-Stack-E2E | PASS — `LIVE_PREMIUM_E2E_OK` |
+| Backend pytest failures | **0** |
+| Frontend/adapter/component/SSR failures | **0** |
+| ESLint errors | **0** |
+| Production build failures | **0** |
+| Live full-stack E2E failures | **0** |
 
-Der finale Clean-E2E nutzte fünf reale RSS-Quellen, verarbeitete 129 Rohmeldungen zu 128 Story-Clustern, generierte aus einer gerankten Story ein Content-Paket, speicherte die Freigabe und las nach einer neuen Service-/Adapter-Instanz den Status `approved` aus der Content Library zurück.
+This is a statement about the cited historical validation run, not a guarantee that every environment or future commit will pass. The repository's current CI status must be checked independently; the historical test report does not establish a current green GitHub Actions run.
 
-## Bekannte nicht blockierende Hinweise
+### 3. Not run / not verified — do not interpret as a pass
 
-- Der OpenAI-Qualitätsmodus wurde ohne bereitgestellten API-Key nicht extern aufgerufen; der vollständige `local-grounded`-Pfad ist getestet.
-- Vinext weist informativ darauf hin, dass die dynamische API-Proxyroute statisch noch nicht klassifiziert werden kann. Build, SSR, Routing und Runtime sind erfolgreich.
-- Miniflare konnte in der Testumgebung das optionale Cloudflare-`Request.cf`-Objekt nicht laden und verwendete seinen vorgesehenen lokalen Fallback. Der E2E blieb erfolgreich.
-- Die Live-RSS-Ergebnisse hängen naturgemäß von externen Quellen ab; Fehlerisolation ist Teil des Core.
+| Area | Status | Boundary |
+| --- | --- | --- |
+| External OpenAI provider | **NOT RUN** | No API key was supplied for the recorded validation; the local-grounded path was tested |
+| PostgreSQL production database | **NOT VERIFIED** | The documented end-to-end run used local SQLite |
+| Hosted deployment | **NOT VERIFIED** | No hosted production deployment was established by the recorded test |
+| Authentication and multi-user isolation | **NOT IMPLEMENTED / NOT VERIFIED** | V0.1 is a local/internal application baseline |
+| GitHub Actions CI | **NOT VERIFIED** | No workflow run was available in the recorded repository review |
+| Instagram publishing, scheduling and analytics | **OUT OF SCOPE** | Not implemented in V0.1 |
 
-## Bewusst außerhalb V0.1
+### 4. Non-blocking observations and follow-up work
 
-- Instagram API und automatische Veröffentlichung
+- The OpenAI quality provider was not called without an API key; the tested `local-grounded` path remained functional.
+- Vinext emitted an informational notice that the dynamic API proxy route could not be statically classified. Build, SSR, routing and runtime checks passed.
+- Miniflare could not load the optional Cloudflare `Request.cf` object in the test environment and used its local fallback. The E2E run still passed.
+- Live RSS results depend on external source availability; per-source error isolation is part of the Core.
+- Historical iPad UX feedback identified opportunities to clarify approved-content inspection and navigation destinations. These are product follow-ups, not failed automated tests.
+
+## Out of scope for V0.1
+
+- Instagram API integration and automated publishing
 - Scheduling
-- Reel-Rendering, TTS, Untertitel oder FFmpeg
-- ML-basierte Viralitätsvorhersage
-- Authentifizierung, Billing und Multi-Tenancy
-- DM-/Kommentar-Automation
-- Agent-Orchestrierung
-- neue ALPHA-ENGINE-V3-Funktionen
+- Reel rendering, TTS, subtitles or FFmpeg
+- ML-based virality prediction
+- Authentication, billing and multi-tenancy
+- DM/comment automation
+- Agent orchestration
+- ALPHA-ENGINE-V3 features
 
-## Export- und Wiederherstellungsregeln
+## Source checkpoint and integrity
 
-Der finale Source-Checkpoint heißt:
+The documented final source archive is:
 
 `ALPHA_CREATOR_V0.1_INTEGRATED_SOURCE_CHECKPOINT.zip`
 
-Er enthält Source, Frontend, Backend, Tests, Migrationen, Scripts, Konfiguration und die Abschlussdokumentation. Ausgeschlossen sind `.env`, Secrets, `node_modules`, `.venv`, Datenbanken, Cache, Logs, temporäre Artefakte, alte Input-ZIPs und Build-Ausgaben.
+Recorded SHA-256:
 
-Die separate SHA-256-Datei muss vor Verwendung geprüft werden:
+`4573494c1c6196eeda789b60274e0a22c13b2cc3f777b59c2dce1d1be65dcc08`
+
+Verify the separately supplied checksum file before using the archive:
 
 ```bash
 sha256sum -c ALPHA_CREATOR_V0.1_INTEGRATED_SOURCE_CHECKPOINT_SHA256.txt
 ```
 
-Weitere technische Details stehen in `DEVELOPMENT_HANDOFF.md`; der kompakte Abschlusszustand steht in `CURRENT_STATE.md`.
+The archive is documented as containing source, frontend, backend, tests, migrations, scripts, configuration and completion documentation. It excludes `.env`, secrets, `node_modules`, `.venv`, databases, caches, logs, temporary artifacts, old input ZIPs and build output.
+
+For additional technical detail, see `DEVELOPMENT_HANDOFF.md` and `CURRENT_STATE.md`.
+
+---
+
+**Verification principle:** PASS means a test was recorded as passing in the referenced Gold Master validation. NOT RUN, NOT VERIFIED and OUT OF SCOPE are intentionally distinct from PASS.
